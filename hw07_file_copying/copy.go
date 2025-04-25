@@ -74,7 +74,7 @@ func writeData(to *os.File, copied *int64, n int, buf []byte) error {
 }
 
 func updateProgress(copied, copySize int64) error {
-	if copied == copySize || (copySize > 100 && copied%(copySize/100) == 0) || copied%(1024*1024) == 0 {
+	if copied == copySize || (copySize > 100 && copied%(copySize/100) == 0) {
 		if err := printProgress(copied, copySize); err != nil {
 			return err
 		}
