@@ -26,8 +26,64 @@ func printProgress(done, total int64) error {
 	return nil
 }
 
-func Copy(fromPath, toPath string, offset, limit int64) error {
+func openSourceFile(fromPath string, offset int64) (*os.File, int64, error) {
 	from, err := os.Open(fromPath)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	info, err := from.Stat()
+	if err != nil {
+		return from, 0, ErrUnsupportedFile
+	}
+	if !info.Mode().IsRegular() {
+		return from, 0, ErrUnsupportedFile
+	}
+
+	fileSize := info.Size()
+	if offset > fileSize {
+		return from, 0, ErrOffsetExceedsFileSize
+	}
+
+	_, err = from.Seek(offset, io.SeekStart)
+	if err != nil {
+		return from, 0, err
+	}
+
+	return from, fileSize, nil
+}
+
+func createDestFile(toPath string) (*os.File, error) {
+	to, err := os.Create(toPath)
+	if err != nil {
+		return nil, err
+	}
+	return to, nil
+}
+
+func writeData(to *os.File, copied *int64, n int, buf []byte) error {
+	wn, werr := to.Write(buf[:n])
+	if werr != nil {
+		return werr
+	}
+	if wn != n {
+		return io.ErrShortWrite
+	}
+	*copied += int64(n)
+	return nil
+}
+
+func updateProgress(copied, copySize int64) error {
+	if copied == copySize || (copySize > 100 && copied%(copySize/100) == 0) || copied%(1024*1024) == 0 {
+		if err := printProgress(copied, copySize); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func Copy(fromPath, toPath string, offset, limit int64) error {
+	from, fileSize, err := openSourceFile(fromPath, offset)
 	if err != nil {
 		return err
 	}
@@ -35,24 +91,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		_ = from.Close()
 	}()
 
-	info, err := from.Stat()
-	if err != nil {
-		return ErrUnsupportedFile
-	}
-	if !info.Mode().IsRegular() {
-		return ErrUnsupportedFile
-	}
-	fileSize := info.Size()
-	if offset > fileSize {
-		return ErrOffsetExceedsFileSize
-	}
-
-	_, err = from.Seek(offset, io.SeekStart)
-	if err != nil {
-		return err
-	}
-
-	to, err := os.Create(toPath)
+	to, err := createDestFile(toPath)
 	if err != nil {
 		return err
 	}
@@ -68,25 +107,28 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	bufSize := int64(32 * 1024)
 	buf := make([]byte, bufSize)
 	var copied int64
+
+	if err := printProgress(0, copySize); err != nil {
+		return err
+	}
+
 	for copied < copySize {
 		toRead := bufSize
 		if copySize-copied < bufSize {
 			toRead = copySize - copied
 		}
 		n, err := from.Read(buf[:toRead])
+
 		if n > 0 {
-			wn, werr := to.Write(buf[:n])
-			if werr != nil {
-				return werr
+			if err := writeData(to, &copied, n, buf); err != nil {
+				return err
 			}
-			if wn != n {
-				return io.ErrShortWrite
-			}
-			copied += int64(n)
-			if err := printProgress(copied, copySize); err != nil {
+
+			if err := updateProgress(copied, copySize); err != nil {
 				return err
 			}
 		}
+
 		if err == io.EOF {
 			break
 		}
@@ -94,6 +136,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			return err
 		}
 	}
+
 	if _, err := os.Stdout.WriteString("\n"); err != nil {
 		return err
 	}
