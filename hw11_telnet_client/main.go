@@ -33,6 +33,8 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT)
 	defer cancel()
 
+	done := make(chan struct{})
+
 	go func() {
 		<-ctx.Done()
 		fmt.Fprintln(os.Stderr, "...Connection terminated")
@@ -46,6 +48,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "...Connection was closed by peer")
 			cancel()
 		}
+		close(done)
 	}()
 
 	err = client.Send()
@@ -53,5 +56,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, "...EOF")
 	}
 
+	<-done
 	client.Close()
 }
