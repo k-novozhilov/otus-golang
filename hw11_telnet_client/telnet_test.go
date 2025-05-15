@@ -130,6 +130,7 @@ func TestTelnetClient(t *testing.T) {
 			n, err = conn.Write([]byte("bye\n"))
 			require.NoError(t, err)
 			require.NotEqual(t, 0, n)
+			_ = conn.Close()
 		}()
 
 		wg.Wait()
