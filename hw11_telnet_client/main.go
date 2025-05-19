@@ -54,6 +54,7 @@ func main() {
 	err = client.Send()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "...EOF")
+		cancel()
 	}
 
 	<-done
