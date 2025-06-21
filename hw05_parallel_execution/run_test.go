@@ -67,4 +67,75 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
+
+	t.Run("concurrent execution without time.Sleep", func(t *testing.T) {
+		const (
+			taskCount   = 50
+			workerCount = 5
+			maxErrors   = 1
+		)
+
+		var (
+			startedTasks   int32
+			finishedTasks  int32
+			startedSignal  = make(chan struct{})
+			finishedSignal = make(chan struct{})
+		)
+
+		tasks := make([]Task, 0, taskCount)
+
+		for i := 0; i < taskCount; i++ {
+			tasks = append(tasks, func() error {
+				atomic.AddInt32(&startedTasks, 1)
+				if atomic.LoadInt32(&startedTasks) == 1 {
+					close(startedSignal)
+				}
+
+				for j := 0; j < 1000; j++ {
+					_ = j
+				}
+
+				newFinished := atomic.AddInt32(&finishedTasks, 1)
+				if newFinished == int32(taskCount) {
+					close(finishedSignal)
+				}
+				return nil
+			})
+		}
+
+		go func() {
+			err := Run(tasks, workerCount, maxErrors)
+			require.NoError(t, err)
+		}()
+
+		<-startedSignal
+
+		require.Eventually(t, func() bool {
+			return atomic.LoadInt32(&startedTasks) > 1
+		}, time.Second, 10*time.Millisecond, "tasks are not running concurrently")
+
+		<-finishedSignal
+
+		require.Equal(t, int32(taskCount), atomic.LoadInt32(&finishedTasks), "not all tasks were completed")
+	})
+
+	t.Run("m <= 0 should return ErrErrorsLimitExceeded", func(t *testing.T) {
+		tasksCount := 10
+		tasks := make([]Task, 0, tasksCount)
+
+		var runTasksCount int32
+
+		for i := 0; i < tasksCount; i++ {
+			tasks = append(tasks, func() error {
+				atomic.AddInt32(&runTasksCount, 1)
+				return nil
+			})
+		}
+
+		err := Run(tasks, 5, 0)
+		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "expected ErrErrorsLimitExceeded for m=0, got %v", err)
+
+		err = Run(tasks, 5, -1)
+		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "expected ErrErrorsLimitExceeded for m=-1, got %v", err)
+	})
 }
