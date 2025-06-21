@@ -1,0 +1,44 @@
+--- FAIL: TestGetDomainStat_Time_And_Memory (5.95s)
+    stats_optimization_test.go:46: time used: 328.601916ms / 300ms
+    stats_optimization_test.go:47: memory used: 314Mb / 30Mb
+    assertion_compare.go:332: 
+        	Error Trace:	stats_optimization_test.go:49
+        	Error:      	"328601916" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	[the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (5.86s)
+    stats_optimization_test.go:46: time used: 324.198291ms / 300ms
+    stats_optimization_test.go:47: memory used: 314Mb / 30Mb
+    assertion_compare.go:332: 
+        	Error Trace:	stats_optimization_test.go:49
+        	Error:      	"324198291" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	[the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (5.85s)
+    stats_optimization_test.go:46: time used: 323.315792ms / 300ms
+    stats_optimization_test.go:47: memory used: 314Mb / 30Mb
+    assertion_compare.go:332: 
+        	Error Trace:	stats_optimization_test.go:49
+        	Error:      	"323315792" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	[the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (5.86s)
+    stats_optimization_test.go:46: time used: 332.095709ms / 300ms
+    stats_optimization_test.go:47: memory used: 314Mb / 30Mb
+    assertion_compare.go:332: 
+        	Error Trace:	stats_optimization_test.go:49
+        	Error:      	"332095709" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	[the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (5.85s)
+    stats_optimization_test.go:46: time used: 325.646917ms / 300ms
+    stats_optimization_test.go:47: memory used: 314Mb / 30Mb
+    assertion_compare.go:332: 
+        	Error Trace:	stats_optimization_test.go:49
+        	Error:      	"325646917" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	[the program is too slow]
+FAIL
+exit status 1
+FAIL	github.com/k-novozhilov/otus-golang/hw10_program_optimization	29.595s
+FAIL

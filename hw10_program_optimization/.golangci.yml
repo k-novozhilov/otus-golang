@@ -1,0 +1,12 @@
+linters-settings:
+  tagliatelle:
+    case:
+      rules:
+        json: ignore
+
+issues:
+  exclude-rules:
+    - path: stats\.go
+      linters:
+        - tagliatelle
+      text: "json\\(camel\\)" 

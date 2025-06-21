@@ -1,0 +1,22 @@
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 132.044416ms / 300ms
+    stats_optimization_test.go:47: memory used: 14Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.47s)
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 131.17825ms / 300ms
+    stats_optimization_test.go:47: memory used: 14Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.45s)
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 131.712083ms / 300ms
+    stats_optimization_test.go:47: memory used: 14Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.45s)
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 131.137875ms / 300ms
+    stats_optimization_test.go:47: memory used: 14Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.45s)
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 131.386001ms / 300ms
+    stats_optimization_test.go:47: memory used: 14Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.50s)
+PASS
+ok  	github.com/k-novozhilov/otus-golang/hw10_program_optimization	7.591s
