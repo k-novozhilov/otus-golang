@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,8 +13,8 @@ import (
 type TelnetClient interface {
 	Connect() error
 	io.Closer
-	Send() error
-	Receive() error
+	Send(ctx context.Context) error
+	Receive(ctx context.Context) error
 }
 
 type Client struct {
@@ -50,18 +51,40 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) Send() error {
-	_, err := io.Copy(c.conn, c.in)
-	if err != nil && !errors.Is(err, io.EOF) {
+func (c *Client) Send(ctx context.Context) error {
+	done := make(chan error, 1)
+	go func() {
+		_, err := io.Copy(c.conn, c.in)
+		if err != nil && !errors.Is(err, io.EOF) {
+			done <- err
+			return
+		}
+		done <- nil
+	}()
+
+	select {
+	case err := <-done:
 		return err
+	case <-ctx.Done():
+		return ctx.Err()
 	}
-	return nil
 }
 
-func (c *Client) Receive() error {
-	_, err := io.Copy(c.out, c.conn)
-	if err != nil && !errors.Is(err, io.EOF) {
+func (c *Client) Receive(ctx context.Context) error {
+	done := make(chan error, 1)
+	go func() {
+		_, err := io.Copy(c.out, c.conn)
+		if err != nil && !errors.Is(err, io.EOF) {
+			done <- err
+			return
+		}
+		done <- nil
+	}()
+
+	select {
+	case err := <-done:
 		return err
+	case <-ctx.Done():
+		return ctx.Err()
 	}
-	return nil
 }

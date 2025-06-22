@@ -43,7 +43,7 @@ func main() {
 	}()
 
 	go func() {
-		err := client.Receive()
+		err := client.Receive(ctx)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "...Connection was closed by peer")
 			cancel()
@@ -51,7 +51,7 @@ func main() {
 		close(done)
 	}()
 
-	err = client.Send()
+	err = client.Send(ctx)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "...EOF")
 		cancel()

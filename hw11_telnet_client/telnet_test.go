@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net"
 	"sync"
@@ -34,10 +35,10 @@ func TestTelnetClient(t *testing.T) {
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
-			err = client.Send()
+			err = client.Send(context.Background())
 			require.NoError(t, err)
 
-			err = client.Receive()
+			err = client.Receive(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, "world\n", out.String())
 		}()
@@ -107,10 +108,10 @@ func TestTelnetClient(t *testing.T) {
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
-			err = client.Send()
+			err = client.Send(context.Background())
 			require.NoError(t, err)
 
-			err = client.Receive()
+			err = client.Receive(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, "bye\n", out.String())
 		}()
